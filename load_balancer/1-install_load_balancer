@@ -1,36 +1,36 @@
-<<<<<<< HEAD
-=======
 #!/usr/bin/env bash
-# Create a script to install and configure HAProxy on lb-01 server
-# Configure HAProxy to send traffic to web-01 and web-02 servers
-# Distribute requests using a roundrobin algorithm
-# Make sure that HAProxy can be managed via an init script
+#Install and configure HAproxy
 
-# Install and configure HAproxy on my lb-01 server.
-sudo apt-get -y update
-apt-get -y install haproxy
+apt-get update
+apt-get install -y haproxy
 
-# edit config file
-server_config=\
-"
-frontend  MaryNayram_frontend
-        bind *:80
-        mode http
-        default_backend MaryNayram_backend
-backend MaryNayram_backend
-        balance roundrobin
-        server 176572-web-01 54.160.255.29  check
-        server 176572-web-02 54.173.23.210 check
-"
-echo "$server_config" | sudo tee -a /etc/haproxy/haproxy.cfg
+sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+sudo tee /etc/haproxy/haproxy.cfg > /dev/null <<EOT
+global
+    daemon
+        maxconn 256
 
-# enable haproxy to be started by init script
-echo "ENABLED=1" | sudo tee -a /etc/default/haproxy
+defaults
+    mode http
+        timeout connect 5000ms
+	    timeout client 50000ms
+	        timeout server 50000ms
 
-# Testing the HAproxy configuration file
-sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+frontend http-in
+    bind *:80
+        default_backend webservers
 
-# Restart the Nginx service
+backend webservers
+    balance roundrobin
+        server web-01 54.144.248.47:80 check
+	    server web-02 18.234.236.166:80 check
+	    EOT
+
+# Update the hostname
+sudo hostnamectl set-hostname  397432915-haproxy
+
+# Enable HAProxy as a service managed by the init script
+sudo service haproxy enable
+
+# Restart HAProxy service
 sudo service haproxy restart
->>>>>>> b990f9548a3b3fd6100995fbfcd1a11fee25ab9a
-
