@@ -1,16 +1,36 @@
+<<<<<<< HEAD
+=======
 #!/usr/bin/env bash
-# comment
-sudo apt update -y
-sudo apt install haproxy -y
-echo 'ENABLED=1' | sudo tee -a /etc/default/haproxy
-printf %s 'backend web-backend
-        balance roundrobin
-	        server 4799-web-01 34.203.28.29:80 check
-		        server 4799-web-02 34.224.214.248:80 check
+# Create a script to install and configure HAProxy on lb-01 server
+# Configure HAProxy to send traffic to web-01 and web-02 servers
+# Distribute requests using a roundrobin algorithm
+# Make sure that HAProxy can be managed via an init script
 
-frontend http
+# Install and configure HAproxy on my lb-01 server.
+sudo apt-get -y update
+apt-get -y install haproxy
+
+# edit config file
+server_config=\
+"
+frontend  MaryNayram_frontend
         bind *:80
-	        mode http
-		        default_backend web-backend
-			' | sudo tee -a /etc/haproxy/haproxy.cfg
-			sudo service haproxy restart
+        mode http
+        default_backend MaryNayram_backend
+backend MaryNayram_backend
+        balance roundrobin
+        server 176572-web-01 54.160.255.29  check
+        server 176572-web-02 54.173.23.210 check
+"
+echo "$server_config" | sudo tee -a /etc/haproxy/haproxy.cfg
+
+# enable haproxy to be started by init script
+echo "ENABLED=1" | sudo tee -a /etc/default/haproxy
+
+# Testing the HAproxy configuration file
+sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+
+# Restart the Nginx service
+sudo service haproxy restart
+>>>>>>> b990f9548a3b3fd6100995fbfcd1a11fee25ab9a
+
