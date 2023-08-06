@@ -1,32 +1,28 @@
 #!/usr/bin/env bash
-# comment
-# inspired from https://stackoverflow.com/questions/22306006/configuration-file-etc-nginx-nginx-conf-test-failed-how-do-i-know-why-this-h
-sudo apt remove --purge nginx nginx-full nginx-common -y
-sudo apt update
-sudo apt install nginx -y
-sudo touch /var/www/html/index.html
+# Customizing a 404-error_page
 
-echo "Holberton School" | sudo tee /var/www/html/index.html
-sudo touch /var/www/html/error404.html
-echo "Ceci n'est pas une page" | sudo tee /var/www/html/error404.html
+# Updating Packages before performing installations
+sudo apt-get update
+sudo apt-get install -y nginx
 
-printf %s 'server {
-        listen 80 default_server;
-	        listen [::]:80 default_server;
+# Creating an index.html page
+echo "Hello World!" | sudo tee /var/www/html/index.html
 
-        root /var/www/html;
+# Performing a "moved permanently redirection" (301)
+new_string="server_name _;\n\trewrite ^\/redirect_me https:\/\/github.com\/besthor permanent;"
+sudo sed -i "s/server_name _;/$new_string/" /etc/nginx/sites-enabled/default
 
-        index index.html;
-	        error_page 404 /error404.html;
+# Creating a 404 Custom error page
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
+new_string="listen 80 default_server;\n\terror_page 404 \/404.html;\n\tlocation = \/404.html {\n\t\troot \/var\/www\/html;\n\t\tinternal;\n\t}"
 
-        server_name _;
+sudo sed -i "s/listen 80 default_server;/$new_string/" /etc/nginx/sites-enabled/default
 
-        add_header X-Served-By $hostname;
+# Creating an HTTP response header
+sudo sed -i "/server_name _/a add_header X-Served-By $HOSTNAME;" /etc/nginx/sites-enabled/default
 
-        location /redirect_me {
-	           return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4/;
-		           }
-			   }
-			   ' | sudo tee /etc/nginx/sites-available/default
+# Testing configurations for syntax errors
+sudo nginx -t
 
+# Restart nginx after implementing changes
 sudo service nginx restart
