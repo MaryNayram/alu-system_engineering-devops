@@ -1,4 +1,8 @@
 
 0;10;1c#!/usr/bin/env bash
 # The second line of all your Bash scripts should be a comment explaining what is the script doing
+<<<<<<< HEAD
 ssh ubuntu -i ~/.ssh/id_rsa ubuntu@54.160.255.29
+=======
+ssh -i ~/.ssh/school ubuntu@54.160.255.29
+>>>>>>> 439e37cddb3d48c50570979603181f6dbe7061c1
